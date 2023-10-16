@@ -2,11 +2,7 @@
     Concatenate the labels with the notes data and split using the saved splits
 """
 import csv
-from datetime import datetime
-import random
-
-from constants import DATA_DIR
-from constants import MIMIC_3_DIR
+from constants import MIMIC_4_SAVE_DIR
 
 import pandas as pd
 
@@ -21,7 +17,7 @@ def concat_data(labelsfile, notes_file):
     with open(labelsfile, 'r') as lf:
         print("CONCATENATING")
         with open(notes_file, 'r') as notesfile:
-            outfilename = '%s/notes_labeled.csv' % MIMIC_3_DIR
+            outfilename = '%s/notes_labeled.csv' % MIMIC_4_SAVE_DIR
             with open(outfilename, 'w') as outfile:
                 w = csv.writer(outfile)
                 w.writerow(['SUBJECT_ID', 'HADM_ID', 'TEXT', 'LABELS'])
@@ -60,7 +56,7 @@ def split_data(labeledfile, base_name):
     #read in train, dev, test splits
     for splt in ['train', 'dev', 'test']:
         hadm_ids[splt] = set()
-        with open('%s/%s_full_hadm_ids.csv' % (MIMIC_3_DIR, splt), 'r') as f:
+        with open('%s/%s_full_hadm_ids.csv' % (MIMIC_4_SAVE_DIR, splt), 'r') as f:
             for line in f:
                 hadm_ids[splt].add(line.rstrip())
 

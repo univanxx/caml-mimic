@@ -35,13 +35,13 @@ def gensim_to_embeddings(wv_file, vocab_file, Y, outfile=None):
 
 def build_matrix(ind2w, wv):
     """
-        Go through vocab in order. Find vocab word in wv.index2word, then call wv.word_vec(wv.index2word[i]).
+        Go through vocab in order. Find vocab word in wv.index_to_key, then call wv.word_vec(wv.index_to_key[i]).
         Put results into one big matrix.
         Note: ind2w starts at 1 (saving 0 for the pad character), but gensim word vectors starts at 0
     """
-    W = np.zeros((len(ind2w)+1, len(wv.word_vec(wv.index2word[0])) ))
+    W = np.zeros((len(ind2w)+1, len(wv.word_vec(wv.index_to_key[0])) ))
     words = [PAD_CHAR]
-    W[0][:] = np.zeros(len(wv.word_vec(wv.index2word[0])))
+    W[0][:] = np.zeros(len(wv.word_vec(wv.index_to_key[0])))
     for idx, word in tqdm(ind2w.items()):
         if idx >= W.shape[0]:
             break    

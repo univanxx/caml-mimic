@@ -7,13 +7,13 @@ from nltk.tokenize import RegexpTokenizer
 
 from tqdm import tqdm
 
-from constants import MIMIC_3_DIR
+from constants import MIMIC_4_NOTES_DIR
 
 #retain only alphanumeric
 tokenizer = RegexpTokenizer(r'\w+')
 
 def write_discharge_summaries(out_file):
-    notes_file = '%s/NOTEEVENTS.csv' % (MIMIC_3_DIR)
+    notes_file = f'{MIMIC_4_NOTES_DIR}/note/discharge.csv'
     print("processing notes file")
     with open(notes_file, 'r') as csvfile:
         with open(out_file, 'w') as outfile:
@@ -25,12 +25,12 @@ def write_discharge_summaries(out_file):
             i = 0
             for line in tqdm(notereader):
                 subj = int(line[1])
-                category = line[6]
-                if category == "Discharge summary":
-                    note = line[10]
+                category = line[3]
+                if category == "DS":
+                    note = line[7]
                     #tokenize, lowercase and remove numerics
                     tokens = [t.lower() for t in tokenizer.tokenize(note) if not t.isnumeric()]
                     text = '"' + ' '.join(tokens) + '"'
-                    outfile.write(','.join([line[1], line[2], line[4], text]) + '\n')
+                    outfile.write(','.join([line[1], line[2], line[5], text]) + '\n')
                 i += 1
     return out_file
