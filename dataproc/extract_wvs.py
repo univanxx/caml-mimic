@@ -28,7 +28,7 @@ def gensim_to_embeddings(wv_file, vocab_file, Y, outfile=None):
     W, words = build_matrix(ind2w, wv)
 
     if outfile is None:
-        outfile = wv_file.replace('.w2v', '.embed')
+        outfile = wv_file.replace('.model', '.embed')
 
     #smash that save button
     save_embeddings(W, words, outfile)

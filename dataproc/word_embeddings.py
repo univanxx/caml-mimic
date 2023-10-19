@@ -19,7 +19,7 @@ class ProcessedIter(object):
                 yield (row[3].split())
 
 def word_embeddings(Y, notes_file, embedding_size, min_count, n_iter):
-    modelname = "processed_%s.w2v" % (Y)
+    modelname = "processed_%s.model" % (Y)
     sentences = ProcessedIter(Y, notes_file)
 
     model = w2v.Word2Vec(vector_size=embedding_size, min_count=min_count, workers=4, epochs=n_iter)
