@@ -1,7 +1,9 @@
 """
     Pre-computes the vocab-indexed version of each code description
 """
-import datasets
+import sys 
+sys.path.insert(0, "..")
+import dataset
 from constants import *
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
@@ -20,7 +22,7 @@ def vocab_index_descriptions(vocab_file, vectors_file):
                 vocab.add(line)
     ind2w = {i+1:w for i,w in enumerate(sorted(vocab))}
     w2ind = {w:i for i,w in ind2w.items()}
-    desc_dict = datasets.load_code_descriptions()
+    desc_dict = dataset.load_code_descriptions()
         
     tokenizer = RegexpTokenizer(r'\w+')
 

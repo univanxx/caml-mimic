@@ -3,9 +3,7 @@
 """
 from collections import defaultdict
 import csv
-import math
 import numpy as np
-import sys
 
 from constants import *
 
@@ -169,7 +167,7 @@ def load_lookups(args, desc_embed=False):
     dicts = {'ind2w': ind2w, 'w2ind': w2ind, 'ind2c': ind2c, 'c2ind': c2ind, 'desc': desc_dict, 'dv': dv_dict}
     return dicts
 
-def load_full_codes(train_path, version='mimic3'):
+def load_full_codes(train_path):
     """
         Inputs:
             train_path: path to train dataset
@@ -178,30 +176,18 @@ def load_full_codes(train_path, version='mimic3'):
             code lookup, description lookup
     """
     #get description lookup
-    desc_dict = load_code_descriptions(version=version)
+    desc_dict = load_code_descriptions()
     #build code lookups from appropriate datasets
-    if version == 'mimic2':
-        ind2c = defaultdict(str)
-        codes = set()
-        with open('%s/proc_dsums.csv' % MIMIC_2_DIR, 'r') as f:
-            r = csv.reader(f)
-            #header
-            next(r)
-            for row in r:
-                codes.update(set(row[-1].split(';')))
-        codes = set([c for c in codes if c != ''])
-        ind2c = defaultdict(str, {i:c for i,c in enumerate(sorted(codes))})
-    else:
-        codes = set()
-        for split in ['train', 'dev', 'test']:
-            with open(train_path.replace('train', split), 'r') as f:
-                lr = csv.reader(f)
-                next(lr)
-                for row in lr:
-                    for code in row[3].split(';'):
-                        codes.add(code)
-        codes = set([c for c in codes if c != ''])
-        ind2c = defaultdict(str, {i:c for i,c in enumerate(sorted(codes))})
+    codes = set()
+    for split in ['train', 'dev', 'test']:
+        with open(train_path.replace('train', split), 'r') as f:
+            lr = csv.reader(f)
+            next(lr)
+            for row in lr:
+                for code in row[3].split(';'):
+                    codes.add(code)
+    codes = set([c for c in codes if c != ''])
+    ind2c = defaultdict(str, {i:c for i,c in enumerate(sorted(codes))})
     return ind2c, desc_dict
 
 def reformat(code, is_diag):
@@ -222,40 +208,33 @@ def reformat(code, is_diag):
         code = code[:2] + '.' + code[2:]
     return code
 
-def load_code_descriptions(version='mimic3'):
-    #load description lookup from the appropriate data files
+def load_code_descriptions():
+    # load description lookup from the appropriate data files
     desc_dict = defaultdict(str)
-    if version == 'mimic2':
-        with open('%s/MIMIC_ICD9_mapping' % MIMIC_2_DIR, 'r') as f:
-            r = csv.reader(f)
-            #header
-            next(r)
-            for row in r:
-                desc_dict[str(row[1])] = str(row[2])
-    else:
-        with open("%s/D_ICD_DIAGNOSES.csv" % (DATA_DIR), 'r') as descfile:
-            r = csv.reader(descfile)
-            #header
-            next(r)
-            for row in r:
-                code = row[1]
-                desc = row[-1]
-                desc_dict[reformat(code, True)] = desc
-        with open("%s/D_ICD_PROCEDURES.csv" % (DATA_DIR), 'r') as descfile:
-            r = csv.reader(descfile)
-            #header
-            next(r)
-            for row in r:
-                code = row[1]
-                desc = row[-1]
-                if code not in desc_dict.keys():
-                    desc_dict[reformat(code, False)] = desc
-        with open('%s/ICD9_descriptions' % DATA_DIR, 'r') as labelfile:
-            for i,row in enumerate(labelfile):
-                row = row.rstrip().split()
+
+    with open("%s/hosp/d_icd_diagnoses.csv" % (MIMIC_4_DIR), 'r') as descfile:
+        r = csv.reader(descfile)
+        # header
+        next(r)
+        for row in r:
+            if row[1] == "10":
                 code = row[0]
+                desc = row[-1]
+                desc_dict[code] = desc
+            else:
+                continue
+    with open("%s/hosp/d_icd_procedures.csv" % (MIMIC_4_DIR), 'r') as descfile:
+        r = csv.reader(descfile)
+        # header
+        next(r)
+        for row in r:
+            if row[1] == "10":
+                code = row[0]
+                desc = row[-1]
                 if code not in desc_dict.keys():
-                    desc_dict[code] = ' '.join(row[1:])
+                    desc_dict[code] = desc
+            else:
+                continue
     return desc_dict
 
 def load_description_vectors(Y, version='mimic3'):
